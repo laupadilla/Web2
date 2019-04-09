@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../content/css/index.css" />
+
+    <title>UniFacens</title>
+
+    <style type="text/css">
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <main id="panel" v-cloak>
+        <!-- main menu (left) -->
+        <nav class="menu-relative">            
+            <div>
+                <input type="checkbox" id="menu-left">
+                <label for="menu-left" class="menu-bt left"></label>
+                <div class="nav-menu left">
+                    <div class="menu-scroll">
+                        <h5>Início</h5>
+                        <a v-bind:href="'../Home/index.html?UID=' + id" class="mdi mdi-home-circle">Home</a>
+                        <!-- <a href="" class="mdi mdi-account">Meu Perfil<span>3</span></a> -->
+
+                        <h5>Cadastros</h5>
+                        <a v-bind:href="'../Cadastros/CadastroUsuario.html?UID=' + id" class="mdi mdi-account-plus">Usuários</a>
+                        <a v-bind:href="'../Cadastros/CadastroCurso.html?UID=' + id" class="mdi mdi-library-plus">Cursos</a>
+                        <a v-bind:href="'../Cadastros/CadastroDisciplina.html?UID=' + id" class="mdi mdi-library-plus">Disciplinas</a>
+                        <a v-bind:href="'../Cadastros/CadastroTurmas.html?UID=' + id" class="mdi mdi-library-plus active">Turmas</a>
+                    </div>
+                </div>
+            </div>
+            <!-- <h1>Cadastro de Usuário</h1>
+            <div></div> -->
+            <img src="../content/img/logo.png" alt="">
+            <div></div>
+        </nav>
+        <div class="feedback feedback-error" v-if="error && error.length > 0" v-text="error[0]"></div>
+        <div class="feedback feedback-success" style="display: none;">Cadastro realizado com sucesso</div>
+        <div class="container-fluid" style="margin-top: 50px">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6 col-center">
+                        <form id="panel">
+                            <div class="form-group">
+                                <label for="inputCodigo">Código da Turma</label>
+                                <input type="text" v-model="codigo" class="form-control" id="inputCodigo" placeholder="Código da Turma">
+                            </div>
+                            <div class="form-group">
+                                <label for="inputDias">Dias da Semana</label>
+                                <input type="text" v-model="dias" class="form-control" id="inputDias" placeholder="Dias da Semana">
+                            </div>
+                            <div class="form-group">
+                                <label>Professor</label>
+                                <select v-model="professor" class="form-control">
+                                    <option value="-1" disabled>Selecione</option>
+                                    <option v-for="(p, px) in professores" v-bind:value="p.id" v-text="p.nome"></option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Curso</label>
+                                <select v-model="curso" class="form-control">
+                                    <option value="-1" disabled>Selecione</option>
+                                    <option v-for="(c, cx) in cursos" v-bind:value="c.id" v-text="c.curso"></option>
+                                </select>
+                            </div>
+                            <button type="button" v-on:click.prevent="save" class="btn btn-primary" style="width: 100%">Salvar</button>
+                        </form>
+                    </div> 
+                </div>
+
+                <br><br><br>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Código da Turma</th>
+                                <th scope="col">Dias da Semana</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(t, tx) in turmas">
+                                <th v-text="tx + 1"></th>
+                                <td v-text="t.codigo_turma"></td>
+                                <td v-text="t.dia_semana"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <!-- VueJs Versão 2.6.10 -->
+    <script type="text/JavaScript" src="../content/vendor/vue.js"></script>
+
+    <script type="text/JavaScript">
+        var panel;
+        
+        $(document).ready(function(){
+            _loadContent();
+        })
+        
+        function _loadContent(){
+            panel = new Vue({
+                el: '#panel',
+                data: { 
+                    id: null,
+                    codigo: null,
+                    dias: null,
+                    professores: [],
+                    turmas: null,
+                    cursos: [],
+                    error: [],
+                    professor: -1,
+                    curso: -1
+                },
+                mounted: function(){
+                    var self = this;
+                    var urlParams = new URLSearchParams(window.location.search),
+                          myParam = urlParams.get('UID');
+
+                    self.id = parseInt(myParam);
+                    _loadProfessores(self);
+                    _loadCursos(self);
+                    _loadTurmas(self);
+                },
+                methods: {
+                    save: function(){
+                        var self = this;
+
+                        _validate(self);
+
+                        if(self.error.length <= 0)
+                            _save(self);
+                    },
+                    resetFields: function(){
+                        var self = this;
+
+                        self.codigo = null;
+                        self.dias = null;
+                        self.professor = -1;
+                        self.curso = -1;
+                        self.error = [];
+                    }
+                }
+            })
+        }
+
+        function _loadTurmas(self){
+            $.ajax({
+                url: 'http://mjdos.com.br/aula_web/web/public/turmas',
+                method: 'GET'
+            }).done(function (response) {
+                self.turmas = response;
+            }).fail(function (xhr) {
+                console.log(xhr);
+            });
+        }
+
+        function _save(self){
+            $.ajax({
+                url: 'http://mjdos.com.br/aula_web/web/public/turmas',
+                method: 'POST',
+                data: { 'codigo_turma': self.codigo, 'dia_semana': self.dias, 'professor_id': self.professor, 'curso_id': self.curso }
+            }).done(function (response) {
+                if(response.status === "ok"){
+                    self.resetFields();                    
+                    $('.feedback.feedback-success').fadeIn();
+                }
+            }).fail(function (xhr) {
+                console.log(xhr);
+            });
+        }
+
+        function _validate(self){
+            self.error = [];
+
+            if(self.codigo === null || self.codigo === '')
+                self.error.push('Informe o Código da Turma');
+            if(self.dias === null || self.dias === '')
+                self.error.push('Informe os Dias da Semana');
+            if(self.professor === -1)
+                self.error.push('Informe o Professor');
+            if(self.curso === -1)
+                self.error.push('Informe o Curso');
+        }
+
+        function _loadProfessores(self){
+            $.ajax({
+                url: 'http://mjdos.com.br/aula_web/web/public/usuarios',
+                method: 'GET'
+            }).done(function (response) {
+                response.forEach(element => {
+                    if(element.tipo_user_id === 2 && element.status === "A")
+                        self.professores.push(element);
+                });
+            }).fail(function (xhr) {
+                console.log(xhr);
+            });
+        }
+
+        function _loadCursos(self){
+            $.ajax({
+                url: 'http://mjdos.com.br/aula_web/web/public/cursos',
+                method: 'GET'
+            }).done(function (response) {
+                self.cursos = response;
+            }).fail(function (xhr) {
+                console.log(xhr);
+            });
+        }
+    </script>
+</body>
+</html>

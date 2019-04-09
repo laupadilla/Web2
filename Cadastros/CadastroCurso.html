@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="../content/css/index.css" />
+
+    <title>UniFacens</title>
+
+    <style type="text/css">
+        [v-cloak] {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <main id="panel" v-cloak>
+        <!-- main menu (left) -->
+        <nav class="menu-relative">            
+            <div>
+                <input type="checkbox" id="menu-left">
+                <label for="menu-left" class="menu-bt left"></label>
+                <div class="nav-menu left">
+                    <div class="menu-scroll">
+                        <h5>Início</h5>
+                        <a v-bind:href="'../Home/index.html?UID=' + id" class="mdi mdi-home-circle">Home</a>
+                        <!-- <a href="" class="mdi mdi-account">Meu Perfil<span>3</span></a> -->
+
+                        <h5>Cadastros</h5>
+                        <a v-bind:href="'../Cadastros/CadastroUsuario.html?UID=' + id" class="mdi mdi-account-plus">Usuários</a>
+                        <a v-bind:href="'../Cadastros/CadastroCurso.html?UID=' + id" class="mdi mdi-library-plus active">Cursos</a>
+                        <a v-bind:href="'../Cadastros/CadastroDisciplina.html?UID=' + id" class="mdi mdi-library-plus">Disciplinas</a>
+                        <a v-bind:href="'../Cadastros/CadastroTurmas.html?UID=' + id" class="mdi mdi-library-plus">Turmas</a>
+                    </div>
+                </div>
+            </div>
+            <!-- <h1>Cadastro de Usuário</h1>
+            <div></div> -->
+            <img src="../content/img/logo.png" alt="">
+            <div></div>
+        </nav>
+        <div class="feedback feedback-error" v-if="error && error.length > 0" v-text="error[0]"></div>
+        <div class="feedback feedback-success" style="display: none;">Cadastro realizado com sucesso</div>
+        <div class="container-fluid" style="margin-top: 50px">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6 col-center">
+                        <form id="panel">
+                            <div class="form-group">
+                                <label for="inputCurso">Nome Do Curso</label>
+                                <input type="text" v-model="curso" class="form-control" id="inputCurso" placeholder="Nome Do Curso">
+                            </div>                            
+                            <button type="button" v-on:click.prevent="save" class="btn btn-primary" style="width: 100%">Salvar</button>
+                        </form>
+                    </div> 
+                </div>
+                <br><br><br>
+                <div class="row">
+                    <div class="col-md-4"></div>
+                    <div class="col-md-4">
+                        <table class="table table-hover">
+                            <thead>
+                            <tr>
+                                <th scope="col"></th>
+                                <th scope="col">Nome Curso</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="(c, cx) in cursos">
+                                <th v-text="cx + 1"></th>
+                                <td v-text="c.curso"></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+    <!-- VueJs Versão 2.6.10 -->
+    <script type="text/JavaScript" src="../content/vendor/vue.js"></script>
+
+    <script type="text/JavaScript">
+        var panel;
+        
+        $(document).ready(function(){
+            _loadContent();
+        })
+        
+        function _loadContent(){
+            panel = new Vue({
+                el: '#panel',
+                data: { 
+                    id: null,
+                    curso: null,
+                    cursos: null,
+                    error: []
+                },
+                mounted: function(){
+                    var self = this;
+                    var urlParams = new URLSearchParams(window.location.search),
+                          myParam = urlParams.get('UID');
+
+                    self.id = parseInt(myParam);
+
+                    _loadCourses(self);
+                },
+                methods: {
+                    save: function(){
+                        var self = this;
+
+                        _validate(self);
+
+                        if(self.error.length <= 0)
+                            _save(self);
+                    },
+                    resetFields: function(){
+                        var self = this;
+
+                        self.curso = null;
+                        self.error = [];
+                    }
+                }
+            })
+        }
+
+        function _loadCourses(self){
+            $.ajax({
+                url: 'http://mjdos.com.br/aula_web/web/public/cursos',
+                method: 'GET'
+            }).done(function (response) {
+                self.cursos = response;
+            }).fail(function (xhr) {
+                console.log(xhr);
+            });
+        }
+
+        function _save(self){
+            $.ajax({
+                url: 'http://mjdos.com.br/aula_web/web/public/cursos',
+                method: 'POST',
+                data: { 'curso': self.curso }
+            }).done(function (response) {
+                if(response.status === "ok"){
+                    self.resetFields();                    
+                    $('.feedback.feedback-success').fadeIn();
+                    _loadCourses(self);
+                }
+            }).fail(function (xhr) {
+                console.log(xhr);
+            });
+        }
+        
+        function _validate(self){
+            self.error = [];
+
+            if(self.curso === null || self.curso === '')
+                self.error = ['Informe Nome do Curso'];
+        }
+    </script>
+</body>
+</html>
